@@ -1,5 +1,9 @@
 import { Shuffle } from 'lucide-react'
 
+/**
+ * @deprecated
+ * @constructor
+ */
 export default function RandomDocument() {
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md flex flex-col justify-between h-full">
