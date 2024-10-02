@@ -1,4 +1,4 @@
-# wurzel-frontend
+# wurzel-frontend (WIP)
 Wurzel Engine is a modern, open source wiki platform that makes it easy to share knowledge.
 
 ## Getting Started
