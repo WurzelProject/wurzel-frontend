@@ -121,7 +121,7 @@ export default function DocumentEditor() {
                   className="flex items-center cursor-pointer text-gray-700 dark:text-gray-300"
               >
                 <div className="relative">
-                  <div className="block bg-gray-300 dark:bg-gray-600 w-10 h-6 rounded-full"></div>
+                  <div className={`block w-10 h-6 rounded-full transition-colors duration-200 ease-in-out ${isLocked ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
                   <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out transform ${isLocked ? 'translate-x-4' : 'translate-x-0'}`}></div>
                 </div>
                 <span className="ml-3 flex items-center">
