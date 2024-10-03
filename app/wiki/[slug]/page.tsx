@@ -2,50 +2,123 @@
 
 import { useEffect, useState } from 'react'
 import Markdown from 'markdown-to-jsx'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import FloatingToolbar from '@/components/FloatingToolbar'
 
-// TODO: api
-const mockMarkdown = `
-# 샘플 문서
+interface Document {
+    content: string
+    isPrivate: boolean
+}
 
-이것은 **마크다운** 문서의 예시입니다.
+// Mock data
+const mockDocuments: { [key: string]: Document } = {
+    'public-doc': {
+        content: `
+# 공개 문서
+
+이 문서는 누구나 볼 수 있는 공개 문서입니다.
 
 ## 섹션 1
 
-이 섹션에서는 다양한 마크다운 요소를 보여줍니다.
-
-### 리스트 예시
-
-- 항목 1
-- 항목 2
-- 항목 3
+여기에 공개 내용이 들어갑니다.
 
 ## 섹션 2
 
-여기에는 [링크 예시](https://example.com)가 있습니다.
+더 많은 공개 내용이 여기에 있습니다.
+    `,
+        isPrivate: false
+    },
+    'private-doc': {
+        content: `
+# 비공개 문서
 
-### 코드 블록 예시
+이 문서는 액세스 토큰이 필요한 비공개 문서입니다.
 
-\`\`\`javascript
-function hello() {
-  console.log("Hello, World!");
+## 기밀 섹션
+
+여기에 비공개 내용이 들어갑니다.
+
+## 또 다른 기밀 섹션
+
+더 많은 비공개 내용이 여기에 있습니다.
+    `,
+        isPrivate: true
+    }
 }
-\`\`\`
 
-#### 인라인 코드
-
-이것은 \`인라인 코드\` 예시입니다.
-`
+const MOCK_ACCESS_TOKEN = 'secret123'
 
 export default function WikiPage() {
     const params = useParams()
-    const [content, setContent] = useState('')
+    const searchParams = useSearchParams()
+    const [document, setDocument] = useState<Document | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [accessToken, setAccessToken] = useState(searchParams.get('access_token') || '')
 
     useEffect(() => {
-        // TODO: api
-        setContent(mockMarkdown)
-    }, [params.slug])
+        fetchDocument()
+    }, [params.slug, accessToken])
+
+    function fetchDocument() {
+        setIsLoading(true)
+        setError('')
+
+        // Simulate API call delay
+        setTimeout(() => {
+            const doc = mockDocuments[params.slug as string]
+            if (!doc) {
+                setError('문서를 찾을 수 없습니다')
+                setIsLoading(false)
+                return
+            }
+
+            if (doc.isPrivate && accessToken !== MOCK_ACCESS_TOKEN) {
+                setDocument({ content: '', isPrivate: true })
+            } else {
+                setDocument(doc)
+            }
+            setIsLoading(false)
+        }, 1000)
+    }
+
+    function handleAccessTokenSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        fetchDocument()
+    }
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-screen">로딩 중...</div>
+    }
+
+    if (error) {
+        return <div className="text-red-500 text-center">{error}</div>
+    }
+
+    if (document?.isPrivate && !document.content) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <form onSubmit={handleAccessTokenSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">비공개 문서</h2>
+                    <p className="mb-4 text-gray-700 dark:text-gray-300">이 문서에 접근하려면 액세스 토큰이 필요합니다.</p>
+                    <input
+                        type="text"
+                        value={accessToken}
+                        onChange={(e) => setAccessToken(e.target.value)}
+                        placeholder="액세스 토큰 입력"
+                        className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        접근하기
+                    </button>
+                </form>
+            </div>
+        )
+    }
 
     return (
         <div className="relative min-h-screen bg-white dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
@@ -69,7 +142,7 @@ export default function WikiPage() {
                             },
                         }}
                     >
-                        {content}
+                        {document?.content || ''}
                     </Markdown>
                 </article>
             </div>
