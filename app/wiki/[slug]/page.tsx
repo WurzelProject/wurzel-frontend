@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Markdown from 'markdown-to-jsx'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import FloatingToolbar from '@/components/FloatingToolbar'
+import { FiAlertCircle, FiHome, FiPlus } from 'react-icons/fi'
 
 interface Document {
     content: string
@@ -51,6 +52,7 @@ const MOCK_ACCESS_TOKEN = 'secret123'
 export default function WikiPage() {
     const params = useParams()
     const searchParams = useSearchParams()
+    const router = useRouter()
     const [document, setDocument] = useState<Document | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState('')
@@ -64,7 +66,6 @@ export default function WikiPage() {
         setIsLoading(true)
         setError('')
 
-        // Simulate API call delay
         setTimeout(() => {
             const doc = mockDocuments[params.slug as string]
             if (!doc) {
@@ -92,7 +93,37 @@ export default function WikiPage() {
     }
 
     if (error) {
-        return <div className="text-red-500 text-center">{error}</div>
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
+                    <div className="flex items-center justify-center mb-6">
+                        <FiAlertCircle className="text-red-500 w-16 h-16" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100">
+                        문서를 찾을 수 없습니다
+                    </h1>
+                    <p className="text-center mb-8 text-gray-600 dark:text-gray-400">
+                        요청하신 문서를 찾을 수 없습니다. 새로운 문서를 생성하시겠습니까?
+                    </p>
+                    <div className="flex flex-col space-y-4">
+                        <button
+                            onClick={() => router.push('/')}
+                            className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+                        >
+                            <FiHome className="mr-2" />
+                            홈으로 돌아가기
+                        </button>
+                        <button
+                            onClick={() => router.push(`/document/new?title=${params.slug}`)}
+                            className="flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-200"
+                        >
+                            <FiPlus className="mr-2" />
+                            새 문서 생성하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     if (document?.isPrivate && !document.content) {
