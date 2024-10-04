@@ -129,7 +129,7 @@ export default function WikiPage() {
     if (document?.isPrivate && !document.content) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <form onSubmit={handleAccessTokenSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+                <form onSubmit={handleAccessTokenSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md">
                     <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">비공개 문서</h2>
                     <p className="mb-4 text-gray-700 dark:text-gray-300">이 문서에 접근하려면 액세스 토큰이 필요합니다.</p>
                     <input
